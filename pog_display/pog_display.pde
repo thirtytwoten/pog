@@ -10,9 +10,9 @@ int readCount = 0; // counts the number of readings between writes
 
 void setup() {
  fileName = str(year()) + str(month()) + str(day()) + str(hour()) + str(minute());
- 
  table = new Table();
  table.addColumn("id");
+ table.addColumn("time");
  table.addColumn("x");
  table.addColumn("y");
  table.addColumn("z");
@@ -34,10 +34,11 @@ void serialEvent(Serial port) {
     
     TableRow newRow = table.addRow();
     newRow.setInt("id", table.lastRowIndex());
-    newRow.setFloat("x", sensorVals[0]);
-    newRow.setFloat("y", sensorVals[1]);
-    newRow.setFloat("z", sensorVals[2]);
-    newRow.setFloat("pulse", sensorVals[3]);
+    newRow.setFloat("time", sensorVals[0]);
+    newRow.setFloat("x", sensorVals[1]);
+    newRow.setFloat("y", sensorVals[2]);
+    newRow.setFloat("z", sensorVals[3]);
+    newRow.setFloat("pulse", sensorVals[4]);
     
     readCount++;
     
