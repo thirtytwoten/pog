@@ -1,56 +1,32 @@
-import processing.serial.*;
-
-Serial port;
 Table table;
-
-String fileName;
-
-int writeRate = 500; // how many readings to take before writing to file 
-int readCount = 0; // counts the number of readings between writes
+int initMillis = 0;
+float x,y,z,pulse;
 
 void setup() {
- fileName = str(year()) + str(month()) + str(day()) + str(hour()) + str(minute());
- table = new Table();
- table.addColumn("id");
- table.addColumn("time");
- table.addColumn("x");
- table.addColumn("y");
- table.addColumn("z");
- table.addColumn("pulse");
- 
- port = new Serial(this, Serial.list()[1], 115200);
+ size(400,400,P3D);
+ frameRate(30);
+ table = loadTable("data/pog.csv", "header");
+ println(table.getRowCount() + " rows in table");
 }
 
 void draw() {
-  
-}
-
-void serialEvent(Serial port) {
-  String val = port.readStringUntil('\n');
-  if (val != null) {
-    val = trim(val);
-    println(val);
-    float sensorVals[] = float(split(val, ","));
-    
-    TableRow newRow = table.addRow();
-    newRow.setInt("id", table.lastRowIndex());
-    newRow.setFloat("time", sensorVals[0]);
-    newRow.setFloat("x", sensorVals[1]);
-    newRow.setFloat("y", sensorVals[2]);
-    newRow.setFloat("z", sensorVals[3]);
-    newRow.setFloat("pulse", sensorVals[4]);
-    
-    readCount++;
-    
-    if (readCount % writeRate == 0) {
-      saveTable(table, "data/" + fileName + ".csv");
-    }
+  if (initMillis == 0) {
+    initMillis = millis();
   }
+  int millis = millis() - initMillis;
+  TableRow row = getRowAtTime(millis);
+  x = row.getFloat("x");
+  y = row.getFloat("y");
+  z = row.getFloat("z");
+  pulse = row.getFloat("pulse");
+  println(row.getInt("id") + ": " + row.getInt("time") + ", " + x + ", " + y + ", " + z + ", " + pulse);
 }
 
-//void findArduino() {
-// // println(Serial.list()); // print available serial ports, chose [#] connected to arduino
-// port = new Serial(this, Serial.list()[1], 115200); // arduino should be communicating at 115200 baud
-// port.clear(); // flush buffer
-// port.bufferUntil('\n'); // set buffer full flag on receipt of carriage return
-//}
+TableRow getRowAtTime(int millis) {
+  TableRow row = null;
+  while(row == null) {
+    row = table.findRow(str(millis) + ".0", "time");
+    millis++;
+  }
+  return row;
+}
