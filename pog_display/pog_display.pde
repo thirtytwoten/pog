@@ -29,13 +29,13 @@ void setup() {
  size(1024, 768, P3D);
  frameRate(30);
  noStroke();
- fill(255);
+ colorMode(HSB, 360);
  
  pointLight(255,  255,  255,  0,  0,  0); 
  sphereDetail(40);
  suntex = loadImage("sun.jpg");
  sun = createShape(SPHERE, 1);
-sun.setTexture(suntex);
+ //sun.setTexture(suntex);
  calcAvgAccel();
  
  //camera defaults
@@ -63,6 +63,7 @@ void draw() {
   pushMatrix();
   translate(width/2, height/2, -300);
   //rotateY(PI * frameCount / 300);
+  sun.setFill(color(0, pulse, pulse));
   sun.scale(scale);
   translateSun();
   tunnelDraw();
