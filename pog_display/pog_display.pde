@@ -63,7 +63,7 @@ void draw() {
   pushMatrix();
   translate(width/2, height/2, -300);
   //rotateY(PI * frameCount / 300);
-  sun.setFill(color(0, pulse, pulse));
+  sun.setFill(color(millis()/1000 % 360, (pulse - 280) * 5, 360));
   sun.scale(scale);
   translateSun();
   tunnelDraw();
