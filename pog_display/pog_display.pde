@@ -9,6 +9,11 @@ float eyeX, eyeY, eyeZ, centerX, centerY, centerZ; //camera vars
 PShape sun;
 PImage suntex;
 
+PShape[] stars;
+PVector[] starPositions;
+int trailPosition = 0;
+PVector lastSpot;
+
 void setup() {
  table = loadTable("data/pog.csv", "header");
  
@@ -30,9 +35,15 @@ void setup() {
  eyeZ = (height/2.0) / tan(PI*30.0 / 180.0);
  centerX = width/2.0;
  centerY = height/2.0;
- centerZ = -1200;
+ centerZ = -300;
  
  translate(width/2, height/2, -300);
+ 
+ stars = new PShape[100];
+ starPositions = new PVector[stars.length];
+ 
+ //lastSpot = new PVector(width/2,height/2,-300);
+ lastSpot = new PVector(0,0,0);
  
 }
 
@@ -52,11 +63,20 @@ void draw() {
   sun.setFill(color(millis()/1000 % 360, (pulse - 280) * 5, 360));
   sun.scale(scale);
   translateSun();
+  drawTrail();
   shape(sun);
   popMatrix();
-  
-  
-  //sphere(100);
+}
+
+void drawTrail() {
+  for(int i = 0; i < stars.length; i++) {
+    if (starPositions[i] != null) {
+         stars[i] = createShape(SPHERE, 4);
+         stars[i].translate(starPositions[i].x, starPositions[i].y, starPositions[i].z);
+         println(i + ": " + starPositions[i]);
+         shape(stars[i]);
+    }
+  }
 }
 
 void translateSun() {
@@ -67,9 +87,16 @@ void translateSun() {
  float zpos = z * t2;
  
  //println(xpos + ", " + ypos + ", " + zpos);
- pos += sqrt(xpos * xpos + ypos * ypos + zpos * zpos);
- println(pos);
+ //pos += sqrt(xpos * xpos + ypos * ypos + zpos * zpos);
+ //println(pos);
  sun.translate(xpos, ypos, zpos);
+ lastSpot = new PVector(
+                         lastSpot.x + xpos,
+                         lastSpot.y + ypos,
+                         lastSpot.z + zpos
+                        );
+ starPositions[trailPosition] = lastSpot;
+ trailPosition = (trailPosition + 1) % stars.length;                              
  eyeX += xpos;
  eyeY += ypos;
  eyeZ += zpos;
@@ -84,8 +111,6 @@ void translateSun() {
  print(centerX + ", ");
  print(centerY + ", ");
  println(centerZ);
- 
- //ellipse(200, 200, pulse / 4, pulse / 4);
 }
 
 void updateData() {
@@ -97,7 +122,6 @@ void updateData() {
   float t1 = table.getRow(max(row.getInt("id") - 1, 0)).getFloat("time");
   float t2 = row.getFloat("time");
   dt = (t2 - t1) / 1000;
-  println(dt);
   x = row.getFloat("x");
   y = row.getFloat("y");
   z = row.getFloat("z");
@@ -121,7 +145,6 @@ void calcAvgAccel() {
    zAvg += row.getFloat("z");
  }
  int n = table.getRowCount();
- float t = table.getRow(n-1).getFloat(1) / 1000.0;
  xAvg = xAvg / n;
  yAvg = yAvg / n;
  zAvg = zAvg / n;
